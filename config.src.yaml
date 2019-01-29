@@ -1,0 +1,6 @@
+database:
+  host: localhost
+  port: 5432
+  username: toastmaster
+  password: club3701
+  databaseName: toastmasters_production

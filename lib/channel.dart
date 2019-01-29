@@ -7,6 +7,8 @@ import 'toastmasters.dart';
 /// Override methods in this class to set up routes and initialize services like
 /// database connections. See http://aqueduct.io/docs/http/channel/.
 class ToastmastersChannel extends ApplicationChannel {
+  ManagedContext context;
+
   /// Initialize services in this method.
   ///
   /// Implement this method to initialize services, read values from [options]
@@ -16,6 +18,17 @@ class ToastmastersChannel extends ApplicationChannel {
   @override
   Future prepare() async {
     logger.onRecord.listen((rec) => print("$rec ${rec.error ?? ""} ${rec.stackTrace ?? ""}"));
+
+    final config = ToastmasterConfig(options.configurationFilePath);
+    final dataModel = ManagedDataModel.fromCurrentMirrorSystem();
+    final persistentStore = PostgreSQLPersistentStore.fromConnectionInfo(
+        config.database.username,
+        config.database.password,
+        config.database.host,
+        config.database.port,
+        config.database.databaseName);
+
+    context = ManagedContext(dataModel, persistentStore);
   }
 
   /// Construct the request channel.
@@ -33,7 +46,7 @@ class ToastmastersChannel extends ApplicationChannel {
 
     router
         .route('/meetings')
-        .link(() => MeetingsController());
+        .link(() => MeetingsController(context));
 
     router
       .route("/example")
@@ -43,4 +56,10 @@ class ToastmastersChannel extends ApplicationChannel {
 
     return router;
   }
+}
+
+class ToastmasterConfig extends Configuration {
+  ToastmasterConfig(String path): super.fromFile(File(path));
+
+  DatabaseConfiguration database;
 }
