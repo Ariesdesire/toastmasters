@@ -1,3 +1,5 @@
+import 'package:toastmasters/controllers/meetings_controller.dart';
+
 import 'toastmasters.dart';
 
 /// This type initializes an application.
@@ -28,6 +30,11 @@ class ToastmastersChannel extends ApplicationChannel {
 
     // Prefer to use `link` instead of `linkFunction`.
     // See: https://aqueduct.io/docs/http/request_controller/
+
+    router
+        .route('/meetings')
+        .link(() => MeetingsController());
+
     router
       .route("/example")
       .linkFunction((request) async {
